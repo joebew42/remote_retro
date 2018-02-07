@@ -9,6 +9,8 @@ import Room from "./room"
 import Alert from "./alert"
 import DoorChime from "./door_chime"
 
+import { facilitatorName } from "../reducers/selectors"
+
 export function isNewFacilitator(prevCurrentUser, currentUser) {
   return ((prevCurrentUser.is_facilitator !== currentUser.is_facilitator)
     && currentUser.is_facilitator)
@@ -16,10 +18,6 @@ export function isNewFacilitator(prevCurrentUser, currentUser) {
 
 export function findCurrentUser(presences, userToken) {
   return presences.find(user => user.token === userToken)
-}
-
-export function findFacilitatorName(presences) {
-  return presences.find(user => user.is_facilitator).name
 }
 
 export class RemoteRetro extends Component {
@@ -36,7 +34,7 @@ export class RemoteRetro extends Component {
       const prevCurrentUser = findCurrentUser(prevProps.presences, prevProps.userToken)
       const currentUser = findCurrentUser(this.props.presences, this.props.userToken)
       if (isNewFacilitator(prevCurrentUser, currentUser)) {
-        actions.changeFacilitator(findFacilitatorName(prevProps.presences))
+        actions.changeFacilitator(facilitatorName(prevProps.presences))
       }
     }
   }
@@ -78,7 +76,12 @@ RemoteRetro.defaultProps = {
   actions: {},
 }
 
-const mapStateToProps = state => ({ ...state })
+const mapStateToProps = state => {
+  return {
+    ...state,
+    facilitatorName: facilitatorName(state),
+  }
+}
 
 const mapDispatchToProps = dispatch => ({
   actions: bindActionCreators(alertActionCreators, dispatch),
